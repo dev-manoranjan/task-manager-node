@@ -46,13 +46,17 @@ router.post("/login", async (req, res) => {
 
 router.post("/reset-password", auth, async (req, res) => {
   try {
-    const { newPassword } = req.body;
+    const { currentPassword, newPassword } = req.body;
     const user = await User.findOne({ _id: req.user._id });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    // const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = newPassword;
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
     await user.save();
     res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
