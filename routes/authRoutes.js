@@ -55,8 +55,7 @@ router.post("/reset-password", auth, async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
+    user.password = newPassword;
     await user.save();
     res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
